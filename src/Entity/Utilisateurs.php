@@ -53,9 +53,13 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'utilisateurs', targetEntity: Commandes::class)]
     private Collection $commandes;
 
+    #[ORM\OneToMany(mappedBy: 'utilisateurs', targetEntity: Creneaux::class)]
+    private Collection $creneaux;
+
     public function __construct()
     {
         $this->commandes = new ArrayCollection();
+        $this->creneaux = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,6 +240,36 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($commande->getUtilisateurs() === $this) {
                 $commande->setUtilisateurs(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Creneaux>
+     */
+    public function getCreneaux(): Collection
+    {
+        return $this->creneaux;
+    }
+
+    public function addCreneaux(Creneaux $creneaux): static
+    {
+        if (!$this->creneaux->contains($creneaux)) {
+            $this->creneaux->add($creneaux);
+            $creneaux->setUtilisateurs($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCreneaux(Creneaux $creneaux): static
+    {
+        if ($this->creneaux->removeElement($creneaux)) {
+            // set the owning side to null (unless already changed)
+            if ($creneaux->getUtilisateurs() === $this) {
+                $creneaux->setUtilisateurs(null);
             }
         }
 
