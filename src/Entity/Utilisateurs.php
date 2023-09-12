@@ -56,10 +56,14 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'utilisateurs', targetEntity: Creneaux::class)]
     private Collection $creneaux;
 
+    #[ORM\ManyToMany(targetEntity: Classements::class, mappedBy: 'utilisateur')]
+    private Collection $classements;
+
     public function __construct()
     {
         $this->commandes = new ArrayCollection();
         $this->creneaux = new ArrayCollection();
+        $this->classements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -271,6 +275,33 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
             if ($creneaux->getUtilisateurs() === $this) {
                 $creneaux->setUtilisateurs(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Classements>
+     */
+    public function getClassements(): Collection
+    {
+        return $this->classements;
+    }
+
+    public function addClassement(Classements $classement): static
+    {
+        if (!$this->classements->contains($classement)) {
+            $this->classements->add($classement);
+            $classement->addUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClassement(Classements $classement): static
+    {
+        if ($this->classements->removeElement($classement)) {
+            $classement->removeUtilisateur($this);
         }
 
         return $this;
