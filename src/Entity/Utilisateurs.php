@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\CreatedAtTrait;
 use App\Repository\UtilisateursRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,6 +15,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    use CreatedAtTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -48,9 +51,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 150)]
     private ?string $ville = null;
-
-    #[ORM\Column (options: ['default' => 'CURRENT_TIMESTAMP'])]
-    private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\OneToMany(mappedBy: 'utilisateurs', targetEntity: Commandes::class)]
     private Collection $commandes;
@@ -207,18 +207,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function setVille(string $ville): static
     {
         $this->ville = $ville;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
 
         return $this;
     }
