@@ -7,6 +7,7 @@ use App\Repository\CategoriesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\Integer;
 
 #[ORM\Entity(repositoryClass: CategoriesRepository::class)]
 class Categories
@@ -20,6 +21,9 @@ class Categories
 
     #[ORM\Column(length: 100)]
     private ?string $nom = null;
+
+    #[ORM\Column(length: 100)]
+    private ?int $categorieCommande = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'categories')]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
@@ -50,6 +54,18 @@ class Categories
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getCategorieCommande(): ?int
+    {
+        return $this->categorieCommande;
+    }
+
+    public function setCategorieCommande(int $categorieCommande): self
+    {
+        $this->categorieCommande = $categorieCommande;
 
         return $this;
     }

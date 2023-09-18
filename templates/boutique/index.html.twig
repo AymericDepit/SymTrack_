@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Boutique{% endblock %}
+
+{% block body %}
+    <main class="container">
+        <section class="row">
+            <div class="col-12">
+                <h1>Boutique</h1>
+                <p>Bienvenue dans la boutique SymTrack</p>
+            </div>
+            {% for categorie in categories %}
+                {% if categorie.parent == null %}
+                <div class="col-12">
+                    <h2>{{ categorie.nom }}</h2>
+                </div>
+                {% else%}
+                    <div class="col-3">
+                        <div class="card" style="width: 18rem;">
+                            <img src="..." class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h3 class="card-title">{{ categorie.nom }}</h3>
+                                <a href="{{ path('boutique_categories', {slug: categorie.slug}) }}" class="btn btn-primary">Voir les produits</a>
+                            </div>
+                        </div>
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </section>
+    </main>
+{% endblock %}

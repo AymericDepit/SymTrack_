@@ -7,7 +7,6 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
-use function Webmozart\Assert\Tests\StaticAnalysis\null;
 
 class ImagesFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -18,7 +17,7 @@ class ImagesFixtures extends Fixture implements DependentFixtureInterface
         for ($img = 1; $img<=30; $img++){
             $image = new Images();
             $image->setNom($faker->image(null, 640, 480));
-            $produit = $this->getReference('prod-' .rand(1, 5));
+            $produit = $this->getReference('prod-' .'1');
             $image->setProduits($produit);
             $manager->persist($image);
         }
