@@ -4,7 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Utilisateurs;
 use App\Form\RegistrationFormType;
+use App\Repository\UtilisateursRepository;
 use App\Security\UtilisateursAuthenticator;
+use App\Service\JWTService;
+use App\Service\SendMailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,12 +15,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationController extends AbstractController
 {
     #[Route('/inscription', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, UserAuthenticatorInterface $userAuthenticator, UtilisateursAuthenticator $authenticator, EntityManagerInterface $entityManager): Response
+    public function register(Request $request, UserPasswordHasherInterface
+    $userPasswordHasher, UserAuthenticatorInterface $userAuthenticator,
+                             UtilisateursAuthenticator $authenticator,
+                             EntityManagerInterface $entityManager,
+                             SendMailService $mail, JWTService $jwt):
+    Response
     {
         $user = new Utilisateurs();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -36,6 +43,34 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
             // do anything else you need here, like send an email
 
+            // On genere le JWT de l'utilisateur
+            // On creer le Header
+
+            $header = [
+                'typ' => 'JWT',
+                'alg' => 'HS256'
+            ];
+
+            // On creer le Payload
+
+            $payload = [
+                'user_id' => $user->getId()
+            ];
+
+            // On genere le token
+            $token = $jwt->generate($header, $payload, $this->getParameter('app.jwtsecret'));
+
+
+            // On envoi un mail
+            $mail->send(
+                'no-reply@symtrack.fr',
+                $user->getEmail(),
+                'Activation de votre compte sur le site SymTrack',
+                'register',
+                compact('user', 'token')
+            );
+
+
             return $userAuthenticator->authenticateUser(
                 $user,
                 $authenticator,
@@ -46,5 +81,81 @@ class RegistrationController extends AbstractController
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
+    }
+
+    #[Route('/verif/{token}', name: 'verify_user')]
+    public function verifyUser($token, JWTService $jwt, UtilisateursRepository
+    $utilisateursRepository, EntityManagerInterface $em):
+    Response
+    {
+        // On verifie si le token est valide, n'a pas expire et n'a pas ete
+        // modifier
+        if ($jwt->isValid($token) && !$jwt->isExpired($token) && $jwt->check
+    ($token, $this->getParameter('app.jwtsecret'))){
+            // On recupere le payload
+            $payload = $jwt->getPayload($token);
+
+            // On recupere le user du token
+            $user = $utilisateursRepository->find($payload['user_id']);
+
+            // On verifie que l'utilisateur existe et n'a pas active son compte
+            if ($user && !$user->getIsVerified()){
+                $user->setIsVerified(true);
+                $em->flush($user);
+                $this->addFlash('success', 'Utilisateur activé');
+                return $this->redirectToRoute('app_profil_app_profil_index');
+            }
+        }
+
+        // Ici un probleme se pose dans le token
+        $this->addFlash('danger', 'Le token est invalide ou a expiré');
+
+        return $this->redirectToRoute('app_login');
+    }
+
+    #[Route('/renvoiverif', name: 'resend_verif')]
+    public function resendVerif(JWTService $jwt, SendMailService $mail,
+                                UtilisateursRepository
+                                $utilisateursRepository): Response
+    {
+        $user = $this->getUser();
+        if (!$user){
+            $this->addFlash('danger', 'Vous devez etre connecte pour acceder a cette page');
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($user->getIsVerified()){
+            $this->addFlash('warning', 'Cet utilisateur est deja activé');
+            return $this->redirectToRoute('app_profil_app_profil_index');
+        }
+
+        // On genere le JWT de l'utilisateur
+        // On creer le Header
+
+        $header = [
+            'typ' => 'JWT',
+            'alg' => 'HS256'
+        ];
+
+        // On creer le Payload
+
+        $payload = [
+            'user_id' => $user->getId()
+        ];
+
+        // On genere le token
+        $token = $jwt->generate($header, $payload, $this->getParameter('app.jwtsecret'));
+
+
+        // On envoi un mail
+        $mail->send(
+            'no-reply@symtrack.fr',
+            $user->getEmail(),
+            'Activation de votre compte sur le site SymTrack',
+            'register',
+            compact('user', 'token')
+        );
+        $this->addFlash('success', 'Email envoyé');
+        return $this->redirectToRoute('app_profil_app_profil_index');
     }
 }

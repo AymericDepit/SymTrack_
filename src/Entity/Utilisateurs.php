@@ -52,6 +52,9 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 150)]
     private ?string $ville = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private $is_verified = false;
+
     #[ORM\OneToMany(mappedBy: 'utilisateurs', targetEntity: Commandes::class)]
     private Collection $commandes;
 
@@ -208,6 +211,17 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->ville = $ville;
 
+        return $this;
+    }
+
+    public function getIsVerified(): ?bool
+    {
+        return $this->is_verified;
+    }
+
+    public function setIsVerified(bool $is_verified): self
+    {
+        $this->is_verified = $is_verified;
         return $this;
     }
 
