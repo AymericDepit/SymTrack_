@@ -28,10 +28,4 @@ class BoutiqueController extends AbstractController
 
         return $this->render('boutique/categories.html.twig', compact('categories', 'produits'));
     }
-
-    #[Route('/{slug}', name: 'produits')]
-    public function produits(Produits $produits): Response
-    {
-        return $this->render('boutique/produits.html.twig', compact('produits'));
-    }
 }
