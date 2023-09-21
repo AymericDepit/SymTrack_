@@ -8,18 +8,22 @@
             <div class="col-12">
                 <h1>Liste des produits de la catégorie {{ categories.nom }}</h1>
             </div>
-            {% for produit in produits %}
+            {% for produit in produits.data %}
                 <div class="col-3 mb-5">
                     <article class="card h-100">
                         <div class="card-body">
                             <h2 class="card-title">{{ produit.nom }}</h2>
                             <p class="card-text">{{ produit.description }}</p>
                             <a href="{{ path('produits_details', {slug: produit.slug}) }}" class="btn btn-primary">Voir les details</a>
-
                         </div>
                     </article>
                 </div>
             {% endfor %}
+            {% set path = 'boutique_categories' %}
+            {% set slug = categories.slug %}
+            {% set pages = produits.pages %}
+            {% set currentPage = produits.page %}
+            {% include "_partials/_pagination.html.twig" %}
         </section>
     </main>
 {% endblock %}

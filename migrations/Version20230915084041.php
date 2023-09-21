@@ -20,12 +20,12 @@ final class Version20230915084041 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE categories ADD categoriecommande INT NOT NULL');
+        $this->addSql('ALTER TABLE categories ADD categorie_commande INT NOT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE categories DROP categoriecommande');
+        $this->addSql('ALTER TABLE categories DROP categorie_commande');
     }
 }

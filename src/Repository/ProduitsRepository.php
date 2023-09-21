@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Produits;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,6 +20,41 @@ class ProduitsRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Produits::class);
+    }
+
+    public function findProduitsPaginated(int $page, string $slug, int
+    $limite = 6): array
+    {
+        $limite = abs($limite);
+
+        $resultat = [];
+
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('c', 'p')
+            ->from('App\Entity\Produits', 'p')
+            ->join('p.categories', 'c')
+            ->where("c.slug = '$slug'")
+            ->setMaxResults($limite)
+            ->setFirstResult(($page * $limite - $limite));
+
+        $paginator = new Paginator($query);
+        $data = $paginator->getQuery()->getResult();
+
+        // On vérifie qu'on a des données
+        if (empty($data)){
+            return $resultat;
+        }
+
+        // On calcule le nb pages
+        $pages = ceil($paginator->count() / $limite);
+
+        // On va remplir le tableau
+        $resultat['data'] = $data;
+        $resultat['pages'] = $pages;
+        $resultat['page'] = $page;
+        $resultat['limite'] = $limite;
+
+        return $resultat;
     }
 
 //    /**

@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Categories;
 use App\Entity\Produits;
 use App\Repository\CategoriesRepository;
+use App\Repository\ProduitsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,10 +23,16 @@ class BoutiqueController extends AbstractController
     }
 
     #[Route('/{slug}', name: 'categories')]
-    public function categories(Categories $categories): Response
+    public function categories(Categories $categories, ProduitsRepository
+    $produitsRepository, Request $request): Response
     {
+        // On va chercher le numero de page dans l'url
+        $page = $request->query->getInt('page', 1);
+
+
         //On va chercher la liste des produits de la catégorie
-        $produits = $categories->getProduits();
+        $produits = $produitsRepository->findProduitsPaginated($page,
+            $categories->getSlug(), 6);
 
         return $this->render('boutique/categories.html.twig', compact('categories', 'produits'));
     }
