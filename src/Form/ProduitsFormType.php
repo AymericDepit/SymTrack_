@@ -8,8 +8,10 @@ use App\Repository\CategoriesRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Image;
 
 class ProduitsFormType extends AbstractType
 {
@@ -18,7 +20,7 @@ class ProduitsFormType extends AbstractType
         $builder
             ->add('nom')
             ->add('description')
-            ->add('prix')
+            ->add('prix', MoneyType::class)
             ->add('stock')
             ->add('categories', EntityType::class, [
                 'class' => Categories::class,

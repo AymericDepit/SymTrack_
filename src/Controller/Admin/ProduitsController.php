@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Images;
 use App\Entity\Produits;
 use App\Form\ProduitsFormType;
+use App\Repository\ProduitsRepository;
 use App\Service\PictureService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,9 +20,11 @@ use Symfony\Component\Validator\Constraints\Json;
 class ProduitsController extends AbstractController
 {
     #[Route('/', name: 'index')]
-    public function index(): Response
+    public function index(ProduitsRepository $produitsRepository): Response
     {
-        return $this->render('admin/produits/index.html.twig');
+        $produits = $produitsRepository ->findAll();
+
+        return $this->render('admin/produits/index.html.twig', compact('produits'));
     }
 
     /**
