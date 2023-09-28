@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panier{% endblock %}
+
+{% block body %}
+    <main class="container">
+        <section class="row">
+            <div class="col-12">
+                <h1>Panier</h1>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Prix</th>
+                        <th>Quantite</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for element in data %}
+                        <tr>
+                            <td>{{ element.produits.nom }}</td>
+                            <td>{{ element.produits.prix / 100 }} €</td>
+                            <td>{{ element.quantite }}</td>
+                            <td>{{ element.quantite * element.produits.prix / 100 }} €</td>
+                            <td>
+                                <a href="{{ path('panier_add', {id: element.produits.id}) }}" class="btn btn-success">+</a>
+                                <a href="{{ path('panier_remove', {id: element.produits.id}) }}" class="btn btn-warning">-</a>
+                                <a href="{{ path('panier_delete', {id: element.produits.id}) }}" class="btn btn-danger">Supprimer</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5">Votre panier est vide</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3">Total</td>
+                        <td>{{ total / 100}} €</td>
+                        <td>
+                            <a href="{{ path('panier_vider') }}" class="btn btn-danger">Vider</a>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+                <a href="{{ path('commandes_') }}" class="btn btn-primary">Valider le panier</a>
+            </div>
+        </section>
+    </main>
+
+{% endblock %}
